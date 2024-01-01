@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/normalEditText"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="20dp"
+        android:autofillHints=""
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:hint="@string/normal_edit_text_hint"
+        android:inputType="textMultiLine"
+        tools:ignore="LabelFor" />
+
+    <com.personal.richtexteditorsdk.old.RichTextEditor
+        android:id="@+id/richTextEditor"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:padding="10dp"
+        android:autofillHints=""
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:hint="@string/rich_text_edit_text_hint"
+        android:inputType="textMultiLine"
+        tools:ignore="LabelFor" />
+
+    <LinearLayout
+        android:id="@+id/buttonContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/boldButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/bold"
+            android:paddingHorizontal="10dp"
+            tools:ignore="ButtonStyle" />
+
+        <Button
+            android:id="@+id/italicButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/italic"
+            android:layout_marginHorizontal="10dp"
+            tools:ignore="ButtonStyle" />
+
+        <Button
+            android:id="@+id/strikeThroughButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/strike"
+            tools:ignore="ButtonStyle" />
+    </LinearLayout>
+</LinearLayout>

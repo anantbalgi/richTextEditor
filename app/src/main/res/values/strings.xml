@@ -1,0 +1,9 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Rich Text Editor</string>
+    <string name="strike">Strike</string>
+    <string name="italic">Italic</string>
+    <string name="bold">Bold</string>
+    <string name="normal_edit_text_hint" tools:ignore="ExtraTranslation">Normal text</string>
+    <string name="rich_text_edit_text_hint" tools:ignore="ExtraTranslation">Rich editor</string>
+    <string name="title_activity_compose">ComposeActivity</string>
+</resources>

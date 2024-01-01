@@ -1,0 +1,41 @@
+[versions]
+activity-compose = "1.8.2"
+foundation-compose = "1.5.4"
+compose-bom = "2023.10.01"
+compose-ui = "1.6.0-beta02"
+core-ktx = "1.12.0"
+appcompat = "1.6.1"
+material = "1.11.0"
+android-gradle-plugin = "8.2.0"
+kotlin-android = "1.9.0"
+material3 = "1.1.2"
+lifecycle-runtime-ktx = "2.6.2"
+
+[libraries]
+#Core
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
+
+#Compose
+androidx-compose-foundation = {module = "androidx.compose.foundation:foundation", version.ref = "foundation-compose"}
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+androidx-compose-ui-base = { module = "androidx.compose.ui:ui", version.ref = "compose-ui" }
+androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose-ui" }
+
+#AppCompat
+androidx-appcompat = {module = "androidx.appcompat:appcompat", version.ref = "appcompat"}
+
+#Material
+androidx-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+google-android-material = {module = "com.google.android.material:material", version.ref = "material"}
+lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
+ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
+android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-android" }
