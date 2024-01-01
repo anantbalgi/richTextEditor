@@ -2,6 +2,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    id("maven-publish")
 }
 
 android {
@@ -23,7 +24,7 @@ android {
             )
         }
         release {
-            isMinifyEnabled = true
+            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -46,6 +47,28 @@ android {
     }
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("aar") {
+            artifactId = "rich-text-editor"
+            groupId = "com.github.anantbalgi"
+            version = "1.0.0"
+            artifact("$buildDir/outputs/aar/richTextEditorSDK-release.aar")
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/anantbalgi/richTextEditor")
+            credentials {
+                username = System.getenv("MY_USERNAME")
+                password = System.getenv("MY_API_KEY")
+            }
+        }
+    }
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -54,7 +77,6 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
-
 
     // Compose UI libs (Using snapshot build for focus restoring APIs)
     implementation(libs.androidx.compose.ui.base)
@@ -69,6 +91,4 @@ dependencies {
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
-
-
 }
