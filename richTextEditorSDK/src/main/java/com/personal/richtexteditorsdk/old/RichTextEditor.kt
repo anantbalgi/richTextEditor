@@ -11,6 +11,7 @@ import android.text.style.StyleSpan
 import android.util.AttributeSet
 import android.widget.EditText
 import com.personal.richtexteditorsdk.RichTextEditorInterface
+import com.personal.richtexteditorsdk.components.MarkdownConverter
 
 @SuppressLint("ViewConstructor", "AppCompatCustomView")
 class RichTextEditor @JvmOverloads constructor(
@@ -59,48 +60,31 @@ class RichTextEditor @JvmOverloads constructor(
         }
     }
 
-    private fun applyStyle(start: Int, count: Int) {
-        if (isBoldActive) {
-            text.setSpan(
-                StyleSpan(Typeface.BOLD),
-                start,
-                start + count,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-
-        if (isItalicActive) {
-            text.setSpan(
-                StyleSpan(Typeface.ITALIC),
-                start,
-                start + count,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-
-        if (isStrikeThroughActive) {
-            text.setSpan(
-                StrikethroughSpan(),
-                start,
-                start + count,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-    }
-
     fun toggleBoldStyleState() {
         isBoldActive = !isBoldActive
-        richTextEditorInterface?.onStyleButtonStateChange(isBoldActive, isItalicActive, isStrikeThroughActive)
+        richTextEditorInterface?.onStyleButtonStateChange(
+            isBoldActive,
+            isItalicActive,
+            isStrikeThroughActive
+        )
     }
 
     fun toggleItalicStyleState() {
         isItalicActive = !isItalicActive
-        richTextEditorInterface?.onStyleButtonStateChange(isBoldActive, isItalicActive, isStrikeThroughActive)
+        richTextEditorInterface?.onStyleButtonStateChange(
+            isBoldActive,
+            isItalicActive,
+            isStrikeThroughActive
+        )
     }
 
     fun toggleStrikeThroughStyleState() {
         isStrikeThroughActive = !isStrikeThroughActive
-        richTextEditorInterface?.onStyleButtonStateChange(isBoldActive, isItalicActive, isStrikeThroughActive)
+        richTextEditorInterface?.onStyleButtonStateChange(
+            isBoldActive,
+            isItalicActive,
+            isStrikeThroughActive
+        )
     }
 
     private fun setPreviousIndexStyle(start: Int) {
@@ -131,4 +115,93 @@ class RichTextEditor @JvmOverloads constructor(
             isStrikeThroughActive
         )
     }
+
+    private fun applyStyle(start: Int, count: Int) {
+        if (isBoldActive) {
+            text.setSpan(
+                StyleSpan(Typeface.BOLD),
+                start,
+                start + count,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+
+        if (isItalicActive) {
+            text.setSpan(
+                StyleSpan(Typeface.ITALIC),
+                start,
+                start + count,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+
+        if (isStrikeThroughActive) {
+            text.setSpan(
+                StrikethroughSpan(),
+                start,
+                start + count,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+    }
+
+    /**
+     * This method is used to capture and map the styling of text to an IntArray of fixed size.
+     */
+    private fun createStyleArray(): IntArray {
+        /**
+         * Normal = 0
+         * Bold = 1
+         * Italic = 2
+         * Bold_Italic = 3
+         * StrikeThrough = 4
+         * Bold_StrikeThrough = 5
+         * Italic_StrikeThrough = 6
+         * Bold_Italic_StrikeThrough = 7
+         */
+
+        val styleArray = IntArray(text.length)
+
+        text.forEachIndexed { index, char ->
+
+            if (char != ' ') {
+                val styleSpan = text?.getSpans(index, index + 1, StyleSpan::class.java)
+                val strikethroughSpan =
+                    text?.getSpans(index, index + 1, StrikethroughSpan::class.java)
+
+                if (!styleSpan.isNullOrEmpty()) {
+                    if (styleSpan.size == 2) {
+                        styleArray[index] = 3
+                    } else {
+                        styleSpan.forEach {
+                            when (it.style) {
+                                Typeface.BOLD -> styleArray[index] = 1
+                                Typeface.ITALIC -> styleArray[index] = 2
+                                else -> styleArray[index] = 0
+                            }
+                        }
+                    }
+                } else {
+                    styleArray[index] = 0
+                }
+
+                if (!strikethroughSpan.isNullOrEmpty()) {
+                    if (index in styleArray.indices) {
+                        styleArray[index] = styleArray[index] + 4
+                    } else {
+                        styleArray[index] = 4
+                    }
+                }
+            } else {
+                styleArray[index] = 0
+            }
+        }
+
+        return styleArray
+    }
+
+    fun getMarkdownText(): String {
+        return MarkdownConverter(text.toString(), createStyleArray()).convertToMarkDown()
+    }
+
 }

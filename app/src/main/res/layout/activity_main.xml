@@ -64,4 +64,19 @@
             android:text="@string/strike"
             tools:ignore="ButtonStyle" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/markdownButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/mark_down_button_text"
+        tools:ignore="ButtonStyle" />
+
+    <TextView
+        android:id="@+id/markDownTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/dummy_text"
+        android:textIsSelectable="true"/>
+
 </LinearLayout>

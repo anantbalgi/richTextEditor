@@ -4,9 +4,10 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.personal.richtexteditorsdk.old.RichTextEditor
 import com.personal.richtexteditorsdk.RichTextEditorInterface
+import com.personal.richtexteditorsdk.old.RichTextEditor
 
 const val buttonActiveColor = Color.BLUE
 const val buttonInactiveColor = Color.GRAY
@@ -17,6 +18,9 @@ class MainActivity : AppCompatActivity(), RichTextEditorInterface {
     private lateinit var boldButton: Button
     private lateinit var italicButton: Button
     private lateinit var strikethroughButton: Button
+    private lateinit var markDownButton: Button
+    private lateinit var markDownTextView: TextView
+
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,6 +31,8 @@ class MainActivity : AppCompatActivity(), RichTextEditorInterface {
         boldButton = findViewById(R.id.boldButton)
         italicButton = findViewById(R.id.italicButton)
         strikethroughButton = findViewById(R.id.strikeThroughButton)
+        markDownTextView = findViewById(R.id.markDownTextView)
+        markDownButton = findViewById(R.id.markdownButton)
 
         onStyleButtonStateChange(
             isBoldActive = false,
@@ -42,6 +48,10 @@ class MainActivity : AppCompatActivity(), RichTextEditorInterface {
         }
         strikethroughButton.setOnClickListener {
             richTextEditor.toggleStrikeThroughStyleState()
+        }
+
+        markDownButton.setOnClickListener {
+            markDownTextView.text = richTextEditor.getMarkdownText()
         }
     }
 
