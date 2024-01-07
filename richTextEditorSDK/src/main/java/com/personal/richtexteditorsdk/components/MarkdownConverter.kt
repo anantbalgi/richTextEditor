@@ -40,14 +40,14 @@ class MarkdownConverter(
                 stack.forEachInReverse {
                     when (it) {
                         "**" -> {
-                            if (index == input.length - 1 || !isBold(styles[index + 1])) {
+                            if (index == input.length - 1 || !isBold(styles[index + 1]) || styles[index + 1] == 7) {
                                 stack.popElement("**")
                                 result.append("**")
                             }
                         }
 
                         "*" -> {
-                            if (index == input.length - 1 || !isItalic(styles[index + 1])) {
+                            if (index == input.length - 1 || !isItalic(styles[index + 1]) || styles[index + 1] == 7) {
                                 stack.popElement("*")
                                 result.append("*")
                             }
