@@ -5,10 +5,14 @@ import android.content.Context
 import android.graphics.Typeface
 import android.text.Editable
 import android.text.Spannable
+import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.util.AttributeSet
+import android.view.ActionMode
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.EditText
 import com.personal.richtexteditorsdk.RichTextEditorInterface
 import com.personal.richtexteditorsdk.components.MarkdownConverter
@@ -55,7 +59,25 @@ class RichTextEditor @JvmOverloads constructor(
 
         setOnClickListener {
             if (selectionStart != editableText.length && selectionStart != 0) {
-                setPreviousIndexStyle(selectionStart)
+                setPreviousOrSelectedIndexStyle(selectionStart)
+            }
+        }
+
+        customSelectionActionModeCallback = object : ActionMode.Callback {
+            override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+                setPreviousOrSelectedIndexStyle(selectionStart, selectionEnd)
+                return true
+            }
+
+            override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+                return false
+            }
+
+            override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
+                return false
+            }
+
+            override fun onDestroyActionMode(mode: ActionMode?) {
             }
         }
     }
@@ -67,6 +89,7 @@ class RichTextEditor @JvmOverloads constructor(
             isItalicActive,
             isStrikeThroughActive
         )
+        removeAndApplyStyleForSelectedText()
     }
 
     fun toggleItalicStyleState() {
@@ -76,6 +99,7 @@ class RichTextEditor @JvmOverloads constructor(
             isItalicActive,
             isStrikeThroughActive
         )
+        removeAndApplyStyleForSelectedText()
     }
 
     fun toggleStrikeThroughStyleState() {
@@ -85,15 +109,17 @@ class RichTextEditor @JvmOverloads constructor(
             isItalicActive,
             isStrikeThroughActive
         )
+        removeAndApplyStyleForSelectedText()
     }
 
-    private fun setPreviousIndexStyle(start: Int) {
+    private fun setPreviousOrSelectedIndexStyle(start: Int, end: Int? = null) {
         isBoldActive = false
         isItalicActive = false
         isStrikeThroughActive = false
 
-        val styleSpan = text?.getSpans(start, start + 1, StyleSpan::class.java)
-        val strikethroughSpan = text?.getSpans(start, start + 1, StrikethroughSpan::class.java)
+        val actualEnd = end ?: (start + 1)
+        val styleSpan = text?.getSpans(start, actualEnd, StyleSpan::class.java)
+        val strikethroughSpan = text?.getSpans(start, actualEnd, StrikethroughSpan::class.java)
 
         if (!styleSpan.isNullOrEmpty()) {
             styleSpan.forEach {
@@ -204,4 +230,16 @@ class RichTextEditor @JvmOverloads constructor(
         return MarkdownConverter(text.toString(), createStyleArray()).convertToMarkDown()
     }
 
+    private fun removeAndApplyStyleForSelectedText() {
+        val startSelection = selectionStart
+        val endSelection = selectionEnd
+
+        if (startSelection != endSelection) {
+            val selectedTextSpannableStringBuilder = SpannableStringBuilder(text.substring(startSelection, endSelection))
+            selectedTextSpannableStringBuilder.clearSpans()
+            text.delete(startSelection, endSelection)
+            text.replace(startSelection, startSelection, selectedTextSpannableStringBuilder.toString())
+            setSelection(startSelection, endSelection)
+        }
+    }
 }
