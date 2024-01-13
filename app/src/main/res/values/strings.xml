@@ -8,4 +8,6 @@
     <string name="title_activity_compose">ComposeActivity</string>
     <string name="mark_down_button_text">Convert To Markdown</string>
     <string name="dummy_text">Dummy text</string>
+    <string name="convert_to_style_button">Convert to Style</string>
+    <string name="style_string_text_view">Style String</string>
 </resources>
