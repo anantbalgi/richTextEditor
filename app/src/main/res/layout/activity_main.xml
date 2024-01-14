@@ -9,7 +9,8 @@
     <EditText
         android:id="@+id/normalEditText"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:layout_marginBottom="20dp"
         android:autofillHints=""
         android:focusable="true"
@@ -18,10 +19,11 @@
         android:inputType="textMultiLine"
         tools:ignore="LabelFor" />
 
-    <com.personal.richtexteditorsdk.old.RichTextEditor
+    <com.personal.richtexteditorsdk.features.RichTextEditor
         android:id="@+id/richTextEditor"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:padding="10dp"
         android:autofillHints=""
         android:focusable="true"
@@ -64,4 +66,35 @@
             android:text="@string/strike"
             tools:ignore="ButtonStyle" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/markdownButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/mark_down_button_text"
+        tools:ignore="ButtonStyle" />
+
+    <EditText
+        android:id="@+id/markDownEditText"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="@string/dummy_text"
+        android:autofillHints=""
+        android:inputType="textMultiLine" />
+
+    <Button
+        android:id="@+id/styleSpanButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:text="@string/convert_to_style_button"
+        tools:ignore="ButtonStyle" />
+
+    <TextView
+        android:id="@+id/styleSpanTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/style_string_text_view"
+        android:textIsSelectable="true"/>
+
 </LinearLayout>
