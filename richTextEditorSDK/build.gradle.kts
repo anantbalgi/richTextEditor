@@ -52,7 +52,7 @@ publishing {
         create<MavenPublication>("aar") {
             artifactId = "rich-text-editor"
             groupId = "com.github.anantbalgi"
-            version = "1.3.0"
+            version = "2.0.0"
             artifact("$buildDir/outputs/aar/richTextEditorSDK-release.aar")
         }
     }

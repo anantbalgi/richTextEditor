@@ -8,12 +8,12 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.personal.richtexteditorsdk.features.RichTextEditor
-import com.personal.richtexteditorsdk.interfaces.RichTextEditorListener
+import com.personal.richtexteditorsdk.interfaces.RichTextEditorInterface
 
 const val buttonActiveColor = Color.BLUE
 const val buttonInactiveColor = Color.GRAY
 
-class MainActivity : AppCompatActivity(), RichTextEditorListener {
+class MainActivity : AppCompatActivity(), RichTextEditorInterface {
 
     private lateinit var richTextEditor: RichTextEditor
     private lateinit var boldButton: Button
@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity(), RichTextEditorListener {
         markDownButton = findViewById(R.id.markdownButton)
         styleSpanButton = findViewById(R.id.styleSpanButton)
         styleSpanTextView = findViewById(R.id.styleSpanTextView)
+        richTextEditor.setRichTextEditorInterface(this)
     }
 
     private fun setupListeners() {

@@ -1,5 +1,7 @@
 package com.personal.richtexteditorsdk.features
 
+//noinspection SuspiciousImport
+import android.R
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Typeface
@@ -13,10 +15,16 @@ import android.util.AttributeSet
 import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
 import android.widget.EditText
+import androidx.core.view.inputmethod.EditorInfoCompat
+import androidx.core.view.inputmethod.InputConnectionCompat
 import com.personal.richtexteditorsdk.components.MarkdownConverter
-import com.personal.richtexteditorsdk.interfaces.RichTextEditorListener
-import com.personal.richtexteditorsdk.utils.Constants
+import com.personal.richtexteditorsdk.interfaces.CutCopyPasteListener
+import com.personal.richtexteditorsdk.interfaces.MediaSelectionListener
+import com.personal.richtexteditorsdk.interfaces.RichTextEditorInterface
 
 /**
  * Custom EditText for rich text editing with support for bold, italic, and strikethrough styles.
@@ -31,25 +39,39 @@ class RichTextEditor @JvmOverloads constructor(
     private val attrs: AttributeSet? = null,
 ) : EditText(context, attrs) {
 
-    // Interface for communicating style changes to the parent
-    private var richTextEditorInterface: RichTextEditorListener? = null
-
     // Tracking style states
     private var isBoldActive = false
     private var isItalicActive = false
     private var isStrikeThroughActive = false
 
-    // TextWatcher to apply styles dynamically
-    private val textChangeListener = object : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+    // Interface for communicating style changes to the parent
+    private var richTextEditorInterface: RichTextEditorInterface? = null
+
+    // Listener for cut, copy, and paste actions
+    private var cutCopyPasteListener: CutCopyPasteListener? = null
+
+    // Listener for media selection
+    private var mediaSelectionListener: MediaSelectionListener? = null
+
+    // External TextWatcher provided by the exposed view user
+    private var externalTextWatcher: TextWatcher? = null
+
+    // Both internal and external TextWatcher to apply styles dynamically and different user specific use-cases
+    private val internalTextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            externalTextWatcher?.beforeTextChanged(s, start, count, after)
+        }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            externalTextWatcher?.onTextChanged(s, start, before, count)
             if (count != 0 && selectionStart != 0) {
                 applyStyle(start, count)
             }
         }
 
-        override fun afterTextChanged(s: Editable?) {}
+        override fun afterTextChanged(s: Editable?) {
+            externalTextWatcher?.afterTextChanged(s)
+        }
     }
 
     /**
@@ -57,16 +79,12 @@ class RichTextEditor @JvmOverloads constructor(
      */
     init {
 
-        // Ensuring the context implements the required interface
-        if (context !is RichTextEditorListener) throw IllegalArgumentException(Constants.RICH_TEXT_EDITOR_CONTRACT_ERROR)
-        else richTextEditorInterface = context
-
         // Adding or removing TextWatcher based on focus state
         setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
-                addTextChangedListener(textChangeListener)
+                addTextChangedListener(internalTextWatcher)
             } else {
-                removeTextChangedListener(textChangeListener)
+                removeTextChangedListener(internalTextWatcher)
             }
         }
 
@@ -95,6 +113,121 @@ class RichTextEditor @JvmOverloads constructor(
             override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean = false
             override fun onDestroyActionMode(mode: ActionMode?) {}
         }
+    }
+
+
+    override fun onCreateInputConnection(editorInfo: EditorInfo): InputConnection? {
+
+        // Call the superclass method to obtain the default input connection
+        val inputConnection = super.onCreateInputConnection(editorInfo)
+
+        // Set the allowed content mime types to image/gif and image/png
+        EditorInfoCompat.setContentMimeTypes(editorInfo, arrayOf("image/gif", "image/png"))
+
+        // Define a callback for handling the commit of content (e.g., image insertion)
+        val callback = InputConnectionCompat.OnCommitContentListener { inputContentInfo, flags, _ ->
+            // Check if read URI permission is granted
+            if (flags and InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION != 0) {
+                try {
+                    // Request permission to read the content URI
+                    inputContentInfo.requestPermission()
+                } catch (e: Exception) {
+                    // Handle permission request failure
+                    return@OnCommitContentListener false
+                }
+                // Notify the listener about the selected media (contentUri)
+                mediaSelectionListener?.onMediaSelected(inputContentInfo.contentUri)
+            }
+            true
+        }
+
+        // Wrap the existing input connection with a customized wrapper or return null
+        return inputConnection?.let {
+            InputConnectionCompat.createWrapper(it, editorInfo, callback)
+        }
+
+    }
+
+    /**
+     * Overrides the method to handle text context menu item selection.
+     * Calls corresponding methods based on the selected menu item.
+     *
+     * @param id The ID of the selected menu item.
+     * @return True if the event was consumed, false otherwise.
+     */
+    override fun onTextContextMenuItem(id: Int): Boolean {
+        when (id) {
+            R.id.cut -> onCut()
+            R.id.copy -> onCopy()
+            R.id.paste -> onPaste()
+        }
+        return super.onTextContextMenuItem(id)
+    }
+
+    /**
+     * Invokes the `onCut()` method of the `cutCopyPasteListener` if it is not null.
+     */
+    private fun onCut() {
+        cutCopyPasteListener?.onCut()
+    }
+
+    /**
+     * Invokes the `onCopy()` method of the `cutCopyPasteListener` if it is not null.
+     */
+    private fun onCopy() {
+        cutCopyPasteListener?.onCopy()
+    }
+
+    /**
+     * Invokes the `onPaste()` method of the `cutCopyPasteListener` if it is not null.
+     */
+    private fun onPaste() {
+        cutCopyPasteListener?.onPaste()
+    }
+
+    /**
+     * Overrides the method to specify that the view has no autofill type.
+     *
+     * @return The autofill type, which is set to View.AUTOFILL_TYPE_NONE.
+     */
+    override fun getAutofillType(): Int {
+        return View.AUTOFILL_TYPE_NONE
+    }
+
+    /**
+     * Ensures that the provided interfaces are set for communication and handling specific actions.
+     *
+     * @param richTextEditorInterface The listener implementing the `RichTextEditorInterface` interface.
+     */
+    fun setRichTextEditorInterface(richTextEditorInterface: RichTextEditorInterface) {
+        this.richTextEditorInterface = richTextEditorInterface
+    }
+
+    /**
+     * Sets the `CutCopyPasteListener` for handling cut, copy, and paste actions.
+     *
+     * @param cutCopyPasteListener The listener implementing the `CutCopyPasteListener` interface.
+     */
+    fun setCutCopyPasteListener(cutCopyPasteListener: CutCopyPasteListener) {
+        this.cutCopyPasteListener = cutCopyPasteListener
+    }
+
+    /**
+     * Sets the `MediaSelectionListener` for handling media selection actions.
+     *
+     * @param mediaSelectionListener The listener implementing the `MediaSelectionListener` interface.
+     */
+    fun setMediaSelectionListener(mediaSelectionListener: MediaSelectionListener) {
+        this.mediaSelectionListener = mediaSelectionListener
+    }
+
+    /**
+     * Setter method for external TextWatcher provided by the exposed view user.
+     *
+     * @param textWatcher The external TextWatcher to be set.
+     */
+    fun setExternalTextWatcher(textWatcher: TextWatcher) {
+        externalTextWatcher = textWatcher
     }
 
     /**

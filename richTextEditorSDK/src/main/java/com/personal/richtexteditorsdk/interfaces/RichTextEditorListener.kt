@@ -1,11 +1,11 @@
 package com.personal.richtexteditorsdk.interfaces
 
 /**
- * Listener interface for observing style button state changes in a Rich Text Editor.
+ * Interface for observing style button state changes in a Rich Text Editor.
  * Implement this interface to receive callbacks when the state of style buttons (e.g., Bold, Italic,
  * StrikeThrough) changes in a Rich Text Editor.
  */
-interface RichTextEditorListener {
+interface RichTextEditorInterface {
 
     /**
      * Called when the state of style buttons (Bold, Italic, StrikeThrough) changes in the Rich Text Editor.
